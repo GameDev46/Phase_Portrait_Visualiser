@@ -10,7 +10,7 @@ void Graph::draw(const Math::Matrix& A) {
     // Clip drawing strictly inside the ImGui window boundaries
     drawList->PushClipRect(winPos, ImVec2(winPos.x + winSize.x, winPos.y + winSize.y), true);
 
-    // 2. Compute Flow Field & Normalization
+    // Compute the grid flow vectors
     std::vector<std::pair<Vector2, Vector2>> flowVectors;
     float maxMagSqr = 0.0001f;
 
@@ -29,7 +29,7 @@ void Graph::draw(const Math::Matrix& A) {
     float maxMag = std::sqrt(maxMagSqr);
     maxMag /= flowArrowSpacing;
 
-    // 3. Render Vector Field Arrows
+    // Draw the field flow arrows
     for (const auto& [pos, flowDir] : flowVectors) {
         Vector2 scaledDir = { flowDir.x / maxMag, flowDir.y / maxMag };
         drawArrow(winPos, winSize, pos, scaledDir, drawList, IM_COL32(50, 50, 50, 255));
@@ -44,7 +44,6 @@ void Graph::draw(const Math::Matrix& A) {
     std::vector<Math::EigenPair> eigenPairs = A.get2x2EigenVectorsAndValues();
 
     int index = 1;
-
     for (Math::EigenPair eigenPair : eigenPairs) {
         Vector2 vec = { eigenPair.eigenVector[0], eigenPair.eigenVector[1] };
         float lambda = eigenPair.eigenValue;
@@ -78,6 +77,9 @@ void Graph::draw(const Math::Matrix& A) {
     // Draw the solution curves
     for (const Curve& curve : curves) {
         if (curve.points.size() < 2) continue;
+
+        // Skip inactive curves
+        if (!curve.enabled) continue;
 
         Vector2 lastArrowPos = graphToScreen(winPos, winSize, curve.points[0]);
 
@@ -141,23 +143,6 @@ void Graph::clear() {
     curves.clear();
 }
 
-Vector2 Graph::graphToScreen(ImVec2 winPos, ImVec2 winSize, Vector2 worldPos) const {
-    float centerX = winPos.x + winSize.x * 0.5f;
-    float centerY = winPos.y + winSize.y * 0.5f;
-
-    float xScale = winSize.x / (scale.x * 2.0f);
-    float yScale = winSize.y / (scale.y * 2.0f);
-    
-    return { centerX + worldPos.x * xScale, centerY - worldPos.y * yScale };
-};
-
-Vector2 Graph::screenToGraph(ImVec2 winPos, ImVec2 winSize, Vector2 screenPos) const {
-    float centerX = winPos.x + winSize.x * 0.5f;
-    float centerY = winPos.y + winSize.y * 0.5f;
-
-    return { ((screenPos.x - centerX) * scale.x) / (winSize.x * 0.5f), ((centerY - screenPos.y) * scale.y) / (winSize.y * 0.5f) };
-}
-
 Math::Matrix Graph::systemODE(const Math::Matrix& x, const Math::Matrix& A) const {
     return A * x;
 }
@@ -179,10 +164,48 @@ void Graph::createNewCurve(Vector2 t0, const Math::Matrix& A, Color color) {
     curves.push_back(curve);
 }
 
-Curve Graph::computeCurve(Vector2 t0, const Math::Matrix& A, int steps, float delta, Color color) const {
+Vector2 Graph::graphToScreen(ImVec2 winPos, ImVec2 winSize, Vector2 worldPos) const {
+    float centerX = winPos.x + winSize.x * 0.5f;
+    float centerY = winPos.y + winSize.y * 0.5f;
+
+    float xScale = winSize.x / (scale.x * 2.0f);
+    float yScale = winSize.y / (scale.y * 2.0f);
+    
+    return { centerX + worldPos.x * xScale, centerY - worldPos.y * yScale };
+};
+
+Vector2 Graph::screenToGraph(ImVec2 winPos, ImVec2 winSize, Vector2 screenPos) const {
+    float centerX = winPos.x + winSize.x * 0.5f;
+    float centerY = winPos.y + winSize.y * 0.5f;
+
+    return { ((screenPos.x - centerX) * scale.x) / (winSize.x * 0.5f), ((centerY - screenPos.y) * scale.y) / (winSize.y * 0.5f) };
+}
+
+std::vector<Curve> Graph::getCurves() const {
+    return curves;
+}
+
+void Graph::setCurveEnabled(int curvedIndex, bool enabled) {
+    curves[curvedIndex].enabled = enabled;
+}
+
+void Graph::setCurveColor(int curvedIndex, Color col) {
+    curves[curvedIndex].color = col;
+}
+
+void Graph::removeCurve(int curveIndex) {
+    for (int i = curveIndex + 1; i < curves.size(); i++)
+        curves[i - 1] = curves[i];
+
+    // Remove the last element
+    curves.pop_back();
+}
+
+Curve Graph::computeCurve(Vector2 t0, const Math::Matrix& A, int steps, float delta, Color color) {
     Curve curve;
     curve.startPoint = t0;
     curve.color = color;
+    curve.id = NEW_CURVE_ID++;
 
     // Forward approximation
     Math::Matrix x(2, 1);

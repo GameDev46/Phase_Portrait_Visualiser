@@ -14,6 +14,7 @@
 
 // Default C++ libraries
 #include <vector>
+#include <string>
 
 // Program entry point
 int main()
@@ -85,7 +86,7 @@ int main()
 
                     if (AChanged) {
                         AChanged = false;
-                        phaseGraph.clear();
+                        //phaseGraph.clear();
                     }
 
                     phaseGraph.draw(A);
@@ -104,6 +105,89 @@ int main()
                         phaseGraph.createNewCurve(worldClick, A, randomColor);
                     }
                 
+                ImGui::End();
+
+                ImGui::Begin("Curves");
+
+                    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(1.0f, 0.3f, 0.3f, 1.0f));
+                    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.9f, 0.25f, 0.25f, 1.0f));
+                    ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.9f, 0.25f, 0.25f, 1.0f));
+
+                    if (ImGui::Button("Remove All Curves", { 250, 30 })) phaseGraph.clear();
+
+                    ImGui::PopStyleColor();
+                    ImGui::PopStyleColor();
+                    ImGui::PopStyleColor();
+
+                    std::vector<Curve> curves = phaseGraph.getCurves();
+                    for (int i = 0; i < curves.size(); i++) {
+
+                        ImGui::PushID(curves[i].id);
+
+                        ImVec4 headerCol = ImVec4(curves[i].color.r / 255.0f, curves[i].color.g / 255.0f, curves[i].color.b / 255.0f, curves[i].color.a / 255.0f);
+                        ImGui::PushStyleColor(ImGuiCol_Header, headerCol);
+                        ImGui::PushStyleColor(ImGuiCol_HeaderHovered, headerCol);
+                        ImGui::PushStyleColor(ImGuiCol_HeaderActive, headerCol);
+
+                        if (ImGui::CollapsingHeader(("Curve " + std::to_string(i)).c_str())) {
+
+                            int curveEnabled = curves[i].enabled ? 1 : 0;
+
+                            ImGui::PushItemWidth(100);
+                            if (ImGui::SliderInt("Show Curve", &curveEnabled, 0, 1)) phaseGraph.setCurveEnabled(i, curveEnabled == 1);
+                            ImGui::PopItemWidth();
+                            
+                            ImGui::Text("");
+                            ImGui::Separator();
+                            ImGui::Text("");
+
+                            ImGui::Text("t0: (%.2f, %.2f)", curves[i].startPoint.x, curves[i].startPoint.y);
+
+                            ImGui::Text("");
+                            ImGui::Separator();
+                            ImGui::Text("");
+                            
+                            ImGui::PushItemWidth(130);
+
+                            int red = curves[i].color.r;
+                            if (ImGui::InputInt("Red", &red)) curves[i].color.r = std::min(std::max(red, 0), 255);
+
+                            int green = curves[i].color.g;
+                            if (ImGui::InputInt("Green", &green)) curves[i].color.g = std::min(std::max(green, 0), 255);
+
+                            int blue = curves[i].color.b;
+                            if (ImGui::InputInt("Blue", &blue)) curves[i].color.b = std::min(std::max(blue, 0), 255);
+
+                            int alpha = curves[i].color.a;
+                            if (ImGui::InputInt("Alpha", &alpha)) curves[i].color.a = std::min(std::max(alpha, 0), 255);
+                            
+                            // Update the stored curve color
+                            phaseGraph.setCurveColor(i, curves[i].color);
+
+                            ImGui::PopItemWidth();
+
+                            ImGui::Text("");
+                            ImGui::Separator();
+                            ImGui::Text("");
+
+                            ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(1.0f, 0.3f, 0.3f, 1.0f));
+                            ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.9f, 0.25f, 0.25f, 1.0f));
+                            ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.9f, 0.25f, 0.25f, 1.0f));
+
+                            if (ImGui::Button("Remove Curve", { 250, 30 })) phaseGraph.removeCurve(i);
+
+                            ImGui::PopStyleColor();
+                            ImGui::PopStyleColor();
+                            ImGui::PopStyleColor();
+                        }
+
+                        ImGui::PopStyleColor();
+                        ImGui::PopStyleColor();
+                        ImGui::PopStyleColor();
+
+                        ImGui::PopID();
+                    }
+
                 ImGui::End();
 
                 ImGui::Begin("System Settings");

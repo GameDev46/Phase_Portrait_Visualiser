@@ -17,6 +17,8 @@ struct Curve {
     std::vector<Vector2> points;
     Vector2 startPoint;
     Color color;
+    bool enabled = true;
+    int id = 0;
 };
 
 class Graph {
@@ -36,7 +38,14 @@ class Graph {
         Vector2 graphToScreen(ImVec2 winPos, ImVec2 winSize, Vector2 worldPos) const;
         Vector2 screenToGraph(ImVec2 winPos, ImVec2 winSize, Vector2 screenPos) const;
 
+        std::vector<Curve> getCurves() const;
+        void setCurveEnabled(int curvedIndex, bool enabled);
+        void setCurveColor(int curvedIndex, Color col);
+        void removeCurve(int curveIndex);
+
     private:
+        int NEW_CURVE_ID = 0;
+
         Vector2 scale = Vector2({ 1.0f, 1.0f });
         std::vector<Curve> curves;
 
@@ -46,7 +55,7 @@ class Graph {
         Math::Matrix rk4Step(const Math::Matrix& x, const Math::Matrix& A, float dt) const;
 
         // Calculates points along a given solution of the differential equation
-        Curve computeCurve(Vector2 t0, const Math::Matrix& A, int steps, float delta, Color color) const;
+        Curve computeCurve(Vector2 t0, const Math::Matrix& A, int steps, float delta, Color color);
 
         // Gets the direction of "motion" of the graph at a given point t0
         Vector2 computeFlowDirection(Vector2 t0, const Math::Matrix& A) const;

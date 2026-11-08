@@ -8,6 +8,7 @@
 
 // Include the matrix library
 #include "src/math/matrix.h"
+#include "src/math/complex_number.h"
 
 #include <vector>
 #include <cmath>
@@ -34,6 +35,9 @@ class Graph {
         
         // Creates a new curve on the graph
         void createNewCurve(Vector2 t0, const Math::Matrix& A, Color color = GetColor(0xff1313));
+
+        // Updates a given curve index with a new start point
+        void updateCurveStartPoint(float index, Vector2 t0, const Math::Matrix& A);
 
         Vector2 graphToScreen(ImVec2 winPos, ImVec2 winSize, Vector2 worldPos) const;
         Vector2 screenToGraph(ImVec2 winPos, ImVec2 winSize, Vector2 screenPos) const;

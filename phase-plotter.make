@@ -72,6 +72,7 @@ endif
 GENERATED :=
 OBJECTS :=
 
+GENERATED += $(OBJDIR)/complex_number.o
 GENERATED += $(OBJDIR)/graph.o
 GENERATED += $(OBJDIR)/imgui.o
 GENERATED += $(OBJDIR)/imgui_demo.o
@@ -82,6 +83,7 @@ GENERATED += $(OBJDIR)/imgui_widgets.o
 GENERATED += $(OBJDIR)/main.o
 GENERATED += $(OBJDIR)/matrix.o
 GENERATED += $(OBJDIR)/rlImGui.o
+OBJECTS += $(OBJDIR)/complex_number.o
 OBJECTS += $(OBJDIR)/graph.o
 OBJECTS += $(OBJDIR)/imgui.o
 OBJECTS += $(OBJDIR)/imgui_demo.o
@@ -177,6 +179,9 @@ $(OBJDIR)/graph.o: src/graph/graph.cpp
 	@echo "$(notdir $<)"
 	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
 $(OBJDIR)/main.o: src/main.cpp
+	@echo "$(notdir $<)"
+	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
+$(OBJDIR)/complex_number.o: src/math/complex_number.cpp
 	@echo "$(notdir $<)"
 	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
 $(OBJDIR)/matrix.o: src/math/matrix.cpp

@@ -45,11 +45,11 @@ void Graph::draw(const Math::Matrix& A) {
 
     int index = 1;
     for (Math::EigenPair eigenPair : eigenPairs) {
-        Vector2 vec = { eigenPair.eigenVector[0], eigenPair.eigenVector[1] };
-        float lambda = eigenPair.eigenValue;
+        Vector2 vec = { eigenPair.eigenVector[0].getRealComponent(), eigenPair.eigenVector[1].getRealComponent() };
+        float lambda = eigenPair.eigenValue.getRealComponent();
 
-        // Skip lambdas of zero
-        if (lambda == 0.0f) continue;
+        // Skip lambdas of zero or imaginary lambdas
+        if (eigenPair.eigenValue.getRealComponent() == 0.0f && eigenPair.eigenValue.getImaginaryComponent() == 0.0f) continue;
 
         float mag = std::sqrt(vec.x*vec.x + vec.y*vec.y);
         vec = { (vec.x / mag) * 3.0f, (vec.y / mag) * 3.0f };
@@ -162,6 +162,14 @@ void Graph::createNewCurve(Vector2 t0, const Math::Matrix& A, Color color) {
 
     // Store the curve ready to be drawn
     curves.push_back(curve);
+}
+
+void Graph::updateCurveStartPoint(float index, Vector2 t0, const Math::Matrix& A) {
+    // Calculate points along the new curves trajectory
+    Curve curve = computeCurve(t0, A, 500, 0.01f, curves[index].color);
+
+    curves[index].points = curve.points;
+    curves[index].startPoint = curve.startPoint;
 }
 
 Vector2 Graph::graphToScreen(ImVec2 winPos, ImVec2 winSize, Vector2 worldPos) const {

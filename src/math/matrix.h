@@ -1,13 +1,15 @@
 #pragma once
 
+#include "complex_number.h"
+
 #include <vector>
 #include <cmath>
 
 namespace Math {
 
     struct EigenPair {
-        float eigenVector[2] = {1.0f,1.0f};
-        float eigenValue = 0.0f;
+        ComplexNumber eigenVector[2] = {ComplexNumber(1.0f, 0.0f), ComplexNumber(1.0f, 0.0f)};
+        ComplexNumber eigenValue = ComplexNumber(0.0f, 0.0f);
     };
 
     class Matrix {
@@ -30,7 +32,6 @@ namespace Math {
 
             Matrix& operator*=(const Matrix& B);
             Matrix& operator*=(float b);
-            
 
             // Access operator overrides
             float& operator()(size_t row, size_t col);

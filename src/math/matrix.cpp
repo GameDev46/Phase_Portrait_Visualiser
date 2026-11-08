@@ -114,11 +114,12 @@ namespace Math {
         float c = (data[0] * data[3]) - (data[1] * data[2]);
 
         float det = b*b - 4*a*c;
-        if (det < 0.0f) return eigenData; // Complex roots - spirals or circles
 
-        float sqrtDet = std::sqrt(det);
-        float lambda1 = (-b + sqrtDet) / (2.0f * a);
-        float lambda2 = (-b - sqrtDet) / (2.0f * a);
+        ComplexNumber sqrtDet = ComplexNumber::sqrt(det);
+        ComplexNumber negB(-b, 0.0f);
+
+        ComplexNumber lambda1 = (negB + sqrtDet) / (2.0f * a);
+        ComplexNumber lambda2 = (negB - sqrtDet) / (2.0f * a);
 
         // Compute eigenvectors (A - lambda*I)v = 0
         EigenPair eigen1;
@@ -127,12 +128,30 @@ namespace Math {
         eigen1.eigenValue = lambda1;
         eigen2.eigenValue = lambda2;
 
+        // lambda1
         if (std::abs(data[1]) > 0.0f) {
+            eigen1.eigenVector[0] = ComplexNumber(1.0f, 0.0f);
             eigen1.eigenVector[1] = (lambda1 - data[0]) / data[1];
-            eigen2.eigenVector[1] = (lambda2 - data[0]) / data[1];
         } else if (std::abs(data[2]) > 0.0f) {
             eigen1.eigenVector[0] = (lambda1 - data[3]) / data[2];
+            eigen1.eigenVector[1] = ComplexNumber(1.0f, 0.0f);
+        } else {
+            // Fallback
+            eigen1.eigenVector[0] = ComplexNumber(0.0f, 0.0f);
+            eigen1.eigenVector[1] = ComplexNumber(0.0f, 0.0f);
+        }
+
+        // lambda2
+        if (std::abs(data[1]) > 0.0f) {
+            eigen2.eigenVector[0] = ComplexNumber(1.0f, 0.0f);
+            eigen2.eigenVector[1] = (lambda2 - data[0]) / data[1];
+        } else if (std::abs(data[2]) > 0.0f) {
             eigen2.eigenVector[0] = (lambda2 - data[3]) / data[2];
+            eigen2.eigenVector[1] = ComplexNumber(1.0f, 0.0f);
+        } else {
+            // Fallback
+            eigen2.eigenVector[0] = ComplexNumber(0.0f, 0.0f);
+            eigen2.eigenVector[1] = ComplexNumber(0.0f, 0.0f);
         }
 
         eigenData.push_back(eigen1);

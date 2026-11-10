@@ -134,7 +134,11 @@ int main()
                         ImGui::PushStyleColor(ImGuiCol_HeaderHovered, headerCol);
                         ImGui::PushStyleColor(ImGuiCol_HeaderActive, headerCol);
 
+                        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
+
                         if (ImGui::CollapsingHeader(("Curve " + std::to_string(i + 1)).c_str())) {
+
+                            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 1.0f, 1.0f));
 
                             int curveEnabled = curves[i].enabled ? 1 : 0;
 
@@ -185,8 +189,11 @@ int main()
                             //ImGui::PopStyleColor();
                             //ImGui::PopStyleColor();
                             //ImGui::PopStyleColor();
+
+                            ImGui::PopStyleColor();
                         }
 
+                        ImGui::PopStyleColor();
                         ImGui::PopStyleColor();
                         ImGui::PopStyleColor();
                         ImGui::PopStyleColor();
